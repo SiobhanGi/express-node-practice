@@ -5,7 +5,7 @@ exports.author_list = (req, res) => {
 };
 
 exports.author_detail = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+  res.send(`NOT IMPLEMENTED: Author detail:${req.params.id}`);
 };
 
 exports.author_create_get = (req, res) => {

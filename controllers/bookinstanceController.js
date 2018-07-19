@@ -5,7 +5,7 @@ exports.bookinstance_list = (req, res) => {
 };
 
 exports.bookinstance_detail = (req, res) => {
-  res.send('NOT IMPLEMENTED: BookInstance detail: ' + req.params.id);
+  res.send(`NOT IMPLEMENTED: BookInstance detail: ${req.params.id}`);
 };
 
 exports.bookinstance_create_get = (req, res) => {
