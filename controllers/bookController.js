@@ -9,7 +9,7 @@ exports.book_list = (req, res) => {
 };
 
 exports.book_detail = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book detail: ' + req.params.id);
+  res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`);
 };
 
 exports.book_create_get = (req, res) => {
