@@ -7,7 +7,6 @@ exports.author_list = (req, res) => {
       if (err) { return next(err); }
       res.render('author_list', { title: 'Author List', author_list: list_authors });
     });
-
 };
 
 exports.author_detail = (req, res) => {
