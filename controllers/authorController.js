@@ -54,7 +54,7 @@ exports.author_create_post = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.render('author_form', { title: 'Create Author', author: req.body, errors: error.array() });
+      res.render('author_form', { title: 'Create Author', author: req.body, errors: errors.array() });
     } else {
       let author = new Author(
         {
