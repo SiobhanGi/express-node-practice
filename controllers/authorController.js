@@ -1,4 +1,4 @@
-const { body,validationResult } = require('express-validator/check');
+const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
 const async = require('async');
 const Author = require('../models/author');
@@ -35,16 +35,28 @@ exports.author_detail = (req, res, next) => {
 };
 
 exports.author_create_get = (req, res) => {
-  res.render('author_form', { title: 'Create Author'});
+  res.render('author_form', { title: 'Create Author' });
 };
 
 exports.author_create_post = [
-  body('first_name').isLength({ min: 1 }).trim().withMessage('First name must be specified.')
-    .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
-  body('family_name').isLength({ min: 1 }).trim().withMessage('Family name must be specified.')
-    .isAlphanumeric().withMessage('Family name has non-alphanumeric characters.'),
-  body('date_of_birth', 'Invalid date of birth').optional({ checkFalsy: true }).isISO8601(),
-  body('date_of_death', 'Invalid date of death').optional({ checkFalsy: true }).isISO8601(),
+  body('first_name')
+    .isLength({ min: 1 })
+    .trim()
+    .withMessage('First name must be specified.')
+    .isAlphanumeric()
+    .withMessage('First name has non-alphanumeric characters.'),
+  body('family_name')
+    .isLength({ min: 1 })
+    .trim()
+    .withMessage('Family name must be specified.')
+    .isAlphanumeric()
+    .withMessage('Family name has non-alphanumeric characters.'),
+  body('date_of_birth', 'Invalid date of birth')
+    .optional({ checkFalsy: true })
+    .isISO8601(),
+  body('date_of_death', 'Invalid date of death')
+    .optional({ checkFalsy: true })
+    .isISO8601(),
 
   sanitizeBody('first_name').trim().escape(),
   sanitizeBody('family_name').trim().escape(),
@@ -56,19 +68,20 @@ exports.author_create_post = [
     if (!errors.isEmpty()) {
       res.render('author_form', { title: 'Create Author', author: req.body, errors: errors.array() });
     } else {
-      let author = new Author(
+      const author = new Author(
         {
           first_name: req.body.first_name,
           family_name: req.body.family_name,
           date_of_birth: req.body.date_of_birth,
-          date_of_death: req.body.date_of_death
-        });
+          date_of_death: req.body.date_of_death,
+        },
+      );
       author.save((err) => {
         if (err) { return next(err); }
-          return res.redirect(author.url);
+        return res.redirect(author.url);
       });
     }
-  }
+  },
 ];
 
 exports.author_delete_get = (req, res) => {
