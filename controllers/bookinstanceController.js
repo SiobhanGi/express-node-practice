@@ -3,25 +3,24 @@ const BookInstance = require('../models/bookInstance');
 exports.bookinstance_list = (req, res, next) => {
   BookInstance.find()
     .populate('book')
-    .exec((err, list_bookinstances) => {
+    .exec((err, listBookInstances) => {
       if (err) { return next(err); }
-      res.render('bookinstance_list', { title: 'Book Instance List', bookinstance_list: list_bookinstances });
+      return res.render('bookinstance_list', { title: 'Book Instance List', bookinstance_list: listBookInstances });
     });
 };
 
 exports.bookinstance_detail = (req, res, next) => {
-    BookInstance.findById(req.params.id)
+  BookInstance.findById(req.params.id)
     .populate('book')
     .exec((err, bookinstance) => {
       if (err) { return next(err); }
-      if (bookinstance==null) {
-          var err = new Error('Book copy not found');
-          err.status = 404;
-          return next(err);
-        }
-      res.render('bookinstance_detail', { title: 'Book:', bookinstance:  bookinstance});
-    })
-
+      if (bookinstance == null) {
+        let err = new Error('Book copy not found');
+        err.status = 404;
+        return next(err);
+      }
+      return res.render('bookinstance_detail', { title: 'Book:', bookinstance });
+    });
 };
 
 exports.bookinstance_create_get = (req, res) => {
