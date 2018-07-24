@@ -1,67 +1,64 @@
+const async = require('async');
 const Book = require('../models/book');
 const Author = require('../models/author');
 const Genre = require('../models/genre');
 const BookInstance = require('../models/bookInstance');
 
-const async = require('async');
-
 exports.index = (req, res) => {
-
-    async.parallel({
-        book_count: (callback) => {
-            Book.countDocuments({}, callback);
-        },
-        book_instance_count: (callback) => {
-            BookInstance.countDocuments({}, callback);
-        },
-        book_instance_available_count: (callback) => {
-            BookInstance.countDocuments({status:'Available'}, callback);
-        },
-        author_count: (callback) => {
-            Author.countDocuments({}, callback);
-        },
-        genre_count: (callback) => {
-            Genre.countDocuments({}, callback);
-        },
-    }, (err, results) => {
-        res.render('index', { title: 'Local Library Home', error: err, data: results });
-    });
+  async.parallel({
+    book_count: (callback) => {
+      Book.countDocuments({}, callback);
+    },
+    book_instance_count: (callback) => {
+      BookInstance.countDocuments({}, callback);
+    },
+    book_instance_available_count: (callback) => {
+      BookInstance.countDocuments({ status: 'Available' }, callback);
+    },
+    author_count: (callback) => {
+      Author.countDocuments({}, callback);
+    },
+    genre_count: (callback) => {
+      Genre.countDocuments({}, callback);
+    },
+  }, (err, results) => {
+    res.render('index', { title: 'Local Library Home', error: err, data: results });
+  });
 };
 
 exports.book_list = (req, res, next) => {
-
   Book.find({}, 'title author')
     .populate('author')
-    .exec((err, list_books) => {
+    .exec((err, listBooks) => {
       if (err) { return next(err); }
-      res.render('book_list', { title: 'Book List', book_list: list_books });
+      return res.render('book_list', { title: 'Book List', book_list: listBooks });
     });
 };
 
 exports.book_detail = (req, res, next) => {
-    async.parallel({
-        book: (callback) => {
-            Book.findById(req.params.id)
-              .populate('author')
-              .populate('genre')
-              .exec(callback);
-        },
+  async.parallel({
+    book: (callback) => {
+      Book.findById(req.params.id)
+        .populate('author')
+        .populate('genre')
+        .exec(callback);
+    },
 
-        book_instance: (callback) => {
-          BookInstance.find({ 'book': req.params.id })
-          .exec(callback);
-        },
-      },
+    book_instance: (callback) => {
+      BookInstance.find({ 'book': req.params.id })
+        .exec(callback);
+    },
+  },
 
-      (err, results) => {
-        if (err) { return next(err); }
-        if (results.book==null) {
-            var err = new Error('Book not found');
-            err.status = 404;
-            return next(err);
-        }
-        res.render('book_detail', { title: 'Title', book:  results.book, book_instances: results.book_instance } );
-    });
+  (err, results) => {
+    if (err) { return next(err); }
+    if (results.book == null) {
+      let err = new Error('Book not found');
+      err.status = 404;
+      return next(err);
+    }
+    return res.render('book_detail', { title: 'Title', book: results.book, book_instances: results.book_instance });
+  });
 };
 
 exports.book_create_get = (req, res) => {
