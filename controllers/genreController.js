@@ -1,8 +1,8 @@
+const { body, validationResult } = require('express-validator/check');
+const { sanitizeBody } = require('express-validator/filter');
 const async = require('async');
 const Genre = require('../models/genre');
 const Book = require('../models/book');
-const { body,validationResult } = require('express-validator/check');
-const { sanitizeBody } = require('express-validator/filter');
 
 exports.genre_list = (req, res, next) => {
   Genre.find()
@@ -34,38 +34,35 @@ exports.genre_detail = (req, res, next) => {
   });
 };
 
-exports.genre_create_get = (req, res, next) => {
-    res.render('genre_form', { title: 'Create Genre' });
+exports.genre_create_get = (req, res) => {
+  res.render('genre_form', { title: 'Create Genre' });
 };
 
-exports.genre_create_post =  [
+exports.genre_create_post = [
   body('name', 'Genre name required').isLength({ min: 1 }).trim(),
   sanitizeBody('name').trim().escape(),
   (req, res, next) => {
-  const errors = validationResult(req);
-  let genre = new Genre(
-  { name: req.body.name }
-  );
+    const errors = validationResult(req);
+    const genre = new Genre(
+      { name: req.body.name },
+    );
     if (!errors.isEmpty()) {
-      res.render('genre_form', { title: 'Create Genre', genre: genre, errors: errors.array() });
-      return;
-    }
-  else {
-    Genre.findOne({ 'name': req.body.name })
-      .exec((err, found_genre) => {
-        if (err) { return next(err); }
-        if (found_genre) {
-          res.redirect(found_genre.url);
-        }
-        else {
-          genre.save((err) => {
-            if (err) { return next(err); }
-              res.redirect(genre.url);
+      res.render('genre_form', { title: 'Create Genre', genre, errors: errors.array() });
+    } else {
+      Genre.findOne({ name: req.body.name })
+        .exec((err, foundGenre) => {
+          if (err) { return next(err); }
+          if (foundGenre) {
+            return res.redirect(foundGenre.url);
+          } else {
+            genre.save((err) => {
+              if (err) { return next(err); }
+              return res.redirect(genre.url);
             });
           }
         });
     }
-  }
+  },
 ];
 
 exports.genre_delete_get = (req, res) => {
