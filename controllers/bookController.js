@@ -45,7 +45,7 @@ exports.book_detail = (req, res, next) => {
     },
 
     book_instance: (callback) => {
-      BookInstance.find({ 'book': req.params.id })
+      BookInstance.find({ book: req.params.id })
         .exec(callback);
     },
   },

@@ -18,7 +18,7 @@ exports.author_detail = (req, res, next) => {
         .exec(callback);
     },
     authors_books: (callback) => {
-      Book.find({ 'author': req.params.id }, 'title summary')
+      Book.find({ author: req.params.id }, 'title summary')
         .exec(callback);
     },
   }, (err, results) => {
