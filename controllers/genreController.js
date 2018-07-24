@@ -1,6 +1,8 @@
 const async = require('async');
 const Genre = require('../models/genre');
 const Book = require('../models/book');
+const { body,validationResult } = require('express-validator/check');
+const { sanitizeBody } = require('express-validator/filter');
 
 exports.genre_list = (req, res, next) => {
   Genre.find()
@@ -32,8 +34,8 @@ exports.genre_detail = (req, res, next) => {
   });
 };
 
-exports.genre_create_get = (req, res) => {
-  res.send('NOT IMPLEMENTED: Genre create GET');
+exports.genre_create_get = (req, res, next) => {
+  res.render('genre_form', { title: 'Create genre' });
 };
 
 exports.genre_create_post = (req, res) => {
