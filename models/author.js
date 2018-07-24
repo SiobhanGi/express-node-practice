@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const moment = require('moment');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const AuthorSchema = new Schema(
   {
@@ -30,7 +30,7 @@ AuthorSchema
     return `${moment(this.date_of_birth)
       .format('MMMM Do, YYYY')} -
       ${moment(this.date_of_death)
-      .format('MMMM Do, YYYY')}`
-  })
+    .format('MMMM Do, YYYY')}`;
+  });
 
 module.exports = mongoose.model('Author', AuthorSchema);
