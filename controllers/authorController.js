@@ -23,14 +23,14 @@ exports.author_detail = (req, res, next) => {
       Book.find({ author: req.params.id }, 'title summary')
         .exec(callback);
     },
-  }, (err, results) => {
+  }, (err, result) => {
     if (err) { return next(err); }
-    if (results.author == null) {
+    if (result.author == null) {
       let err = new Error('Author not found');
       err.status = 404;
       return next(err);
     }
-    return res.render('author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books });
+    return res.render('author_detail', { title: 'Author Detail', author: result.author, author_books: result.authors_books });
   });
 };
 
@@ -88,49 +88,49 @@ exports.author_delete_get = (req, res, next) => {
   async.parallel({
     author: (callback) => {
       Author.findById(req.params.id)
-      .exec(callback)
+        .exec(callback);
     },
     author_books: (callback) => {
-      Book.find({ 'author': req.params.id })
-      .exec(callback)
+      Book.find({ author: req.params.id })
+        .exec(callback);
     },
-  }, (err, results) {
+  }, (err, result) => {
     if (err) { return next(err); }
-    if (results.author == null) {
+    if (result.author == null) {
       return res.redirect('/catalog/authors');
     }
     return res.render('author_delete', {
       title: 'Delete Author',
-      author: results.author,
-      author_books: results.author_books,
+      author: result.author,
+      author_books: result.author_books,
     });
   });
 };
 
 exports.author_delete_post = (req, res, next) => {
   async.parallel({
-    author: (callback) {
+    author: (callback) => {
       Author.findById(req.body.authorid)
-        .exec(callback)
+        .exec(callback);
     },
-    author_books: (callback) {
-      Book.find({ 'author': req.body.authorid})
-        .exec(callback)
+    author_books: (callback) => {
+      Book.find({ author: req.body.authorid })
+        .exec(callback);
     },
-  }, (err, result) {
-    if (err) {return next(err); }
-    if (results.author_books.length > 0)
-      return res.render('author_delete', {
+  }, (err, result) => {
+    if (err) { return next(err); }
+    if (result.author_books.length > 0) {
+      res.render('author_delete', {
         title: 'Delete Author',
         author: result.author,
-        author_books: result.author_books
-      } else {
-        Author.findByIdAndRemove(req.body.authorid, deleteAuthor(err) => {
-          if (err) { return next(err); }
-          return res.redirect('/catalog/authors')
-        })
-      }
-    );
+        author_books: result.author_books,
+      });
+    } else {
+      Author.findByIdAndRemove(req.body.authorid, (err) => {
+        if (err) { return next(err); }
+        return res.redirect('/catalog/authors');
+      });
+    }
   });
 };
 
