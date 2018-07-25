@@ -73,7 +73,7 @@ exports.book_create_get = (req, res, next) => {
     },
   }, (err, results) => {
     if (err) { return next(err); }
-    return res.render('book_form', { title: 'Create book', authors: results.authors, genre: results.genre });
+    return res.render('book_form', { title: 'Create book', authors: results.authors, genres: results.genres });
   });
 };
 
@@ -94,6 +94,7 @@ exports.book_create_post = [
   body('isbn', 'ISBN must not be empty.').isLength({ min: 1 }).trim(),
 
   sanitizeBody('*').trim().escape(),
+  sanitizeBody('genre.*').trim().escape(),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -112,21 +113,21 @@ exports.book_create_post = [
         authors: (callback) => {
           Author.find(callback);
         },
-        genre: (callback) => {
+        genres: (callback) => {
           Genre.find(callback);
         },
       }, (err, results) => {
         if (err) { return next(err); }
-        for (let i = 0; i < results.genre.length; i += 1) {
-          if (book.genre.indexOf(results.genre[i]._id) > -1) {
-            results.genre[i].checked = 'true';
+        for (let i = 0; i < results.genres.length; i++) {
+          if (book.genre.indexOf(results.genres[i]._id) > -1) {
+            results.genres[i].checked = 'true';
           }
         }
         return res.render('book_form', {
           title: 'Create Book',
           authors: results.authors,
           genres: results.genres,
-          books: results.books,
+          book,
           errors: errors.array(),
         });
       });
