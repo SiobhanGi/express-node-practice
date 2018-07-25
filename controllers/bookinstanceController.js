@@ -27,11 +27,14 @@ exports.bookinstance_detail = (req, res, next) => {
 };
 
 exports.bookinstance_create_get = (req, res, next) => {
-  Book.find({},'title')
-  .exec((err, books) => {
-    if (err) { return next(err); }
-     return res.render('bookinstance_form', { title: 'Create BookInstance', book_list:books });
-  });
+  Book.find({}, 'title')
+    .exec((err, books) => {
+      if (err) { return next(err); }
+      return res.render('bookinstance_form', {
+        title: 'Create BookInstance',
+        book_list: books,
+      });
+    });
 };
 
 exports.bookinstance_create_post = [
@@ -44,31 +47,35 @@ exports.bookinstance_create_post = [
   sanitizeBody('due_back').toDate(),
 
   (req, res, next) => {
-
-  const errors = validationResult(req);
-
-  const bookinstance = new BookInstance(
-    {
-      book: req.body.book,
-      imprint: req.body.imprint,
-      status: req.body.status,
-      due_back: req.body.due_back,
-    },
-   );
+    const errors = validationResult(req);
+    const bookinstance = new BookInstance(
+      {
+        book: req.body.book,
+        imprint: req.body.imprint,
+        status: req.body.status,
+        due_back: req.body.due_back,
+      },
+    );
 
     if (!errors.isEmpty()) {
-      Book.find({},'title')
+      Book.find({}, 'title')
         .exec((err, books) => {
           if (err) { return next(err); }
-            return res.render('bookinstance_form', { title: 'Create BookInstance', book_list : books, selected_book : bookinstance.book._id , errors: errors.array(), bookinstance:bookinstance });
+          return res.render('bookinstance_form', {
+            title: 'Create BookInstance',
+            book_list: books,
+            selected_book: bookinstance.book._id,
+            errors: errors.array(),
+            bookinstance,
+          });
         });
     } else {
       bookinstance.save((err) => {
         if (err) { return next(err); }
-          return res.redirect(bookinstance.url);
+        return res.redirect(bookinstance.url);
       });
     }
-  }
+  },
 ];
 
 exports.bookinstance_delete_get = (req, res) => {
