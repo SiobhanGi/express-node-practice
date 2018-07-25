@@ -149,7 +149,40 @@ exports.book_delete_post = (req, res) => {
 };
 
 exports.book_update_get = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book update GET');
+  async.parallel({
+    book: (callback) => {
+      Book.findById(req.params.id)
+        .populate('author')
+        .populate('genre')
+        .exec(callback)
+    },
+    authors: (callback) => {
+      Author.find(callback)
+    },
+    genres: (callback) => {
+      Genre.find(callback)
+    },
+  }, (err, results) {
+    if (err) { return next(err); }
+    if (results.book == null) {
+      let err = new Error('Book not found');
+      err.status = 404;
+      return next(err);
+    }
+    for (let all_genre = 0; all_genre < results.genre.length; all_genre++) {
+      for (let all_books = 0; all_books < results.book.genre.length; all_books++) {
+        if (results.genre[all_genre]._id.toString() == results.book.genre[all_books]._id.toString()) {
+          results.genre[all_genre].checked = 'true';
+        }
+      }
+    }
+    return res.render('book_form', {
+      title: 'Update book',
+      authors: results.authors,
+      genres: results.genres,
+      book: results.book
+    });
+  });
 };
 
 exports.book_update_post = (req, res) => {
