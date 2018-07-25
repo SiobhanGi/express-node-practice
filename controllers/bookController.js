@@ -1,3 +1,5 @@
+const { body, validationResult } = require('express-validator/check');
+const { sanitizeBody } = require('express-validator/filter');
 const async = require('async');
 const Book = require('../models/book');
 const Author = require('../models/author');
@@ -61,8 +63,18 @@ exports.book_detail = (req, res, next) => {
   });
 };
 
-exports.book_create_get = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book create GET');
+exports.book_create_get = (req, res, next) => {
+  aync.parallel({
+    authors: (callback) => {
+      Author.find(callback);
+    },
+    genres: (callback) => {
+      Genre.find(callback);
+    },
+  }, (err, results) => {
+      if (err) { return next(err); }
+      return res.render('book_form', { title: 'Create book', authors: results.authors, genre: results.genre });
+  });
 };
 
 exports.book_create_post = (req, res) => {
