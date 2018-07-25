@@ -72,18 +72,19 @@ exports.book_create_get = (req, res, next) => {
       Genre.find(callback);
     },
   }, (err, results) => {
-      if (err) { return next(err); }
-      return res.render('book_form', { title: 'Create book', authors: results.authors, genre: results.genre });
+    if (err) { return next(err); }
+    return res.render('book_form', { title: 'Create book', authors: results.authors, genre: results.genre });
   });
 };
 
 exports.book_create_post = [
   (req, res, next) => {
     if (!(req.body.genre instanceof Array)) {
-      if (typeof req.body.genre === 'undefined')
+      if (typeof req.body.genre === 'undefined') {
         req.body.genre = [];
-      else
+      } else {
         req.body.genre = new Array(req.body.genre);
+      }
     }
     next();
   },
@@ -103,7 +104,7 @@ exports.book_create_post = [
         summary: req.body.summary,
         isbn: req.body.isbn,
         genre: req.body.genre,
-      }
+      },
     );
 
     if (!errors.isEmpty()) {
@@ -115,13 +116,19 @@ exports.book_create_post = [
           Genre.find(callback);
         },
       }, (err, results) => {
-          if (err) { return next(err); }
-          for (let i = 0; i < results.genre.length; i++) {
-            if (book.genre.indexOf(results.genre[i]._id) > -1) {
-              results.genre[i].checked='true';
-            }
+        if (err) { return next(err); }
+        for (let i = 0; i < results.genre.length; i += 1) {
+          if (book.genre.indexOf(results.genre[i]._id) > -1) {
+            results.genre[i].checked = 'true';
           }
-          return res.render('book_form', { title: 'Create Book', authors: results.authors, genres: results.genres, books: results.books, errors: errors.array() });
+        }
+        return res.render('book_form', {
+          title: 'Create Book',
+          authors: results.authors,
+          genres: results.genres,
+          books: results.books,
+          errors: errors.array(),
+        });
       });
     } else {
       book.save((err) => {
@@ -129,7 +136,7 @@ exports.book_create_post = [
         return res.redirect(book.url);
       });
     }
-  }
+  },
 ];
 
 exports.book_delete_get = (req, res) => {
