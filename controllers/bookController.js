@@ -185,6 +185,68 @@ exports.book_update_get = (req, res) => {
   });
 };
 
-exports.book_update_post = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book update POST');
-};
+exports.book_update_post = [
+  (req, res, next) => {
+    if(!(req.body.genre instanceof Array)) {
+      if (typeof req.body.genre === 'undefined')
+      req.body.genre = [];
+      else
+      req.body.genre = new Array(req.body.genre);
+    }
+    next();
+  },
+
+  body('title', 'Title must not be empty.').isLength({ min: 1 }).trim(),
+  body('author', 'Author must not be empty.').isLength({ min: 1 }).trim(),
+  body('summary', 'Summary must not be empty.').isLength({ min: 1 }).trim(),
+  body('isbn', 'ISBN must not be empty').isLength({ min: 1 }).trim(),
+
+  sanitizeBody('title').trim().escape(),
+  sanitizeBody('author').trim().escape(),
+  sanitizeBody('summary').trim().escape(),
+  sanitizeBody('isbn').trim().escape(),
+  sanitizeBody('genre.*').trim().escape(),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    let book = new Book(
+      {
+        title: req.body.title,
+        author: req.body.author,
+        summary: req.body.summary,
+        isbn: req.body.isbn,
+        genre: (typeof req.body.genre === 'undefined') ? [] : req.body.genre,
+        _id: req.params.id,
+      });
+    if (!errors.isEmpty()) {
+      async.parallel({
+        authors: (callback) => {
+          Author.find(callback)
+        },
+        genres: (callback) => {
+          Genre.find(callback)
+        },
+      }, (err, results) => {
+        if (err) { return next(err); }
+        for (let i = 0; i < results.genre.length; i++) {
+          if (book.genre.indexOf(results.genre[i]._id) > -1) {
+            results.genre[i].checked = 'true';
+          }
+        }
+        return res.render('book_form', {
+          title: 'Update Book',
+          authors: results.author,
+          genre: results.genres,
+          book,
+          errors: errors.array()
+        });
+        return;
+      } else {
+        Book.findByIdAndUpdate(req.params.id, book, {}, (err, thebook) => {
+          if (err) { return next(err); }
+          return res.redirect(thebook.url);
+        });
+      });
+    }
+  }
+];
