@@ -55,7 +55,7 @@ exports.book_detail = (req, res, next) => {
   (err, results) => {
     if (err) { return next(err); }
     if (results.book == null) {
-      let err = new Error('Book not found');
+      const err = new Error('Book not found');
       err.status = 404;
       return next(err);
     }
@@ -148,31 +148,33 @@ exports.book_delete_post = (req, res) => {
   res.send('NOT IMPLEMENTED: Book delete POST');
 };
 
-exports.book_update_get = (req, res) => {
+exports.book_update_get = (req, res, next) => {
   async.parallel({
     book: (callback) => {
       Book.findById(req.params.id)
         .populate('author')
         .populate('genre')
-        .exec(callback)
+        .exec(callback);
     },
     authors: (callback) => {
-      Author.find(callback)
+      Author.find(callback);
     },
     genres: (callback) => {
-      Genre.find(callback)
+      Genre.find(callback);
     },
-  }, (err, results) {
+  }, (err, results) => {
     if (err) { return next(err); }
     if (results.book == null) {
-      let err = new Error('Book not found');
+      const err = new Error('Book not found');
       err.status = 404;
       return next(err);
     }
-    for (let all_genre = 0; all_genre < results.genre.length; all_genre++) {
-      for (let all_books = 0; all_books < results.book.genre.length; all_books++) {
-        if (results.genre[all_genre]._id.toString() == results.book.genre[all_books]._id.toString()) {
-          results.genre[all_genre].checked = 'true';
+    for (let allGenre = 0; allGenre < results.genre.length; allGenre++) {
+      for (let allBookss = 0; allBookss < results.book.genre.length; allBookss++) {
+        if (results.genre[allGenre]
+          ._id.toString() === results.book.genre[allBookss]._id
+          .toString()) {
+          results.genre[allGenre].checked = 'true';
         }
       }
     }
@@ -180,18 +182,19 @@ exports.book_update_get = (req, res) => {
       title: 'Update book',
       authors: results.authors,
       genres: results.genres,
-      book: results.book
+      book: results.book,
     });
   });
 };
 
 exports.book_update_post = [
   (req, res, next) => {
-    if(!(req.body.genre instanceof Array)) {
-      if (typeof req.body.genre === 'undefined')
-      req.body.genre = [];
-      else
-      req.body.genre = new Array(req.body.genre);
+    if (!(req.body.genre instanceof Array)) {
+      if (typeof req.body.genre === 'undefined') {
+        req.body.genre = [];
+      } else {
+        req.body.genre = new Array(req.body.genre);
+      }
     }
     next();
   },
@@ -209,7 +212,7 @@ exports.book_update_post = [
 
   (req, res, next) => {
     const errors = validationResult(req);
-    let book = new Book(
+    const book = new Book(
       {
         title: req.body.title,
         author: req.body.author,
@@ -217,36 +220,37 @@ exports.book_update_post = [
         isbn: req.body.isbn,
         genre: (typeof req.body.genre === 'undefined') ? [] : req.body.genre,
         _id: req.params.id,
-      });
+      },
+    );
+
     if (!errors.isEmpty()) {
       async.parallel({
         authors: (callback) => {
-          Author.find(callback)
+          Author.find(callback);
         },
         genres: (callback) => {
-          Genre.find(callback)
+          Genre.find(callback);
         },
       }, (err, results) => {
         if (err) { return next(err); }
-        for (let i = 0; i < results.genre.length; i++) {
-          if (book.genre.indexOf(results.genre[i]._id) > -1) {
-            results.genre[i].checked = 'true';
+        for (let i = 0; i < results.genres.length; i++) {
+          if (book.genre.indexOf(results.genres[i]._id) > -1) {
+            results.genres[i].checked = 'true';
           }
         }
         return res.render('book_form', {
           title: 'Update Book',
-          authors: results.author,
-          genre: results.genres,
+          authors: results.authors,
+          genres: results.genres,
           book,
-          errors: errors.array()
-        });
-        return;
-      } else {
-        Book.findByIdAndUpdate(req.params.id, book, {}, (err, thebook) => {
-          if (err) { return next(err); }
-          return res.redirect(thebook.url);
+          errors: errors.array(),
         });
       });
+    } else {
+      Book.findByIdAndUpdate(req.params.id, book, {}, (err, thebook) => {
+        if (err) { return next(err); }
+        return res.redirect(thebook.url);
+      });
     }
-  }
+  },
 ];
