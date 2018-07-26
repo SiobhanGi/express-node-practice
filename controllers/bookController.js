@@ -169,12 +169,12 @@ exports.book_update_get = (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    for (let allGenre = 0; allGenre < results.genre.length; allGenre++) {
-      for (let allBookss = 0; allBookss < results.book.genre.length; allBookss++) {
-        if (results.genre[allGenre]
-          ._id.toString() === results.book.genre[allBookss]._id
+    for (let allGenre = 0; allGenre < results.genres.length; allGenre++) {
+      for (let allBooks = 0; allBooks < results.book.genre.length; allBooks++) {
+        if (results.genres[allGenre]
+          ._id.toString() === results.book.genre[allBooks]._id
           .toString()) {
-          results.genre[allGenre].checked = 'true';
+          results.genres[allGenre].checked = 'true';
         }
       }
     }
