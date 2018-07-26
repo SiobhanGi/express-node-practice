@@ -79,7 +79,20 @@ exports.bookinstance_create_post = [
 ];
 
 exports.bookinstance_delete_get = (req, res) => {
-  res.send('NOT IMPLEMENTED: BookInstance delete GET');
+  async.parallel({
+    bookinstance: (callback) {
+      BookInstance.find({ book: req.params.id })
+      .exec(callback);
+    },
+  }, (err, results) => {
+    if (err) { return next(err); }
+    if (bookInstance == null) {
+      const err = new Error('Copy not found.');
+      err.status = 404;
+      return next(err);
+    }
+    return res.render('bookinstance_delete', { title: 'Title', bookinstance: results.bookinstance });
+  });
 };
 
 exports.bookinstance_delete_post = (req, res) => {
