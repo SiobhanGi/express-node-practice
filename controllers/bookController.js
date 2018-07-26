@@ -141,7 +141,30 @@ exports.book_create_post = [
 ];
 
 exports.book_delete_get = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book delete GET');
+  async.parallel({
+    book: (callback) => {
+      Book.findById(req.params.id)
+        .populate('author')
+        .populate('genre')
+        .exec(callback);
+    },
+    bookinstance: (callback) => {
+      BookInstance.find({
+        book: req.params.id
+      })
+      .exec(callback)
+    },
+  }, (err, results) => {
+    if (err) { return next(err); }
+    if (results.book == null) {
+      return res.redirect('/catalog/books')
+    }
+    return res.render('book_delete', {
+      title: 'Delete Author',
+      book: results.book,
+      bookinstance: results.bookinstance,
+    });
+  });
 };
 
 exports.book_delete_post = (req, res) => {
