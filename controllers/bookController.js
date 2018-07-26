@@ -152,7 +152,7 @@ exports.book_delete_get = (req, res) => {
       BookInstance.find({
         book: req.params.id
       })
-      .exec(callback)
+      .exec(callback);
     },
   }, (err, results) => {
     if (err) { return next(err); }
@@ -178,7 +178,8 @@ exports.book_delete_post = (req, res) => {
     bookinstance: (callback) => {
       BookInstance.find({
         book: req.params.id
-      });
+      })
+      .exec(callback);
     },
   }, (err, results) => {
     if (err) { return next(err) }
@@ -189,7 +190,7 @@ exports.book_delete_post = (req, res) => {
         bookinstance: results.bookinstance,
       });
     } else {
-      Book.findByIdAndRemove(req.body.bookid, (err) => {
+      Book.findByIdAndRemove(req.body.id, (err) => {
         if (err) { return next(err); }
         return res.redirect('/catalog/books')
       });
