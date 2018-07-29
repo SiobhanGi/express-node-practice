@@ -26,7 +26,7 @@ exports.genre_detail = (req, res, next) => {
   }, (err, results) => {
     if (err) { return next(err); }
     if (results.genre == null) {
-      let err = new Error('Genre not found');
+      const err = new Error('Genre not found');
       err.status = 404;
       return next(err);
     }
@@ -53,7 +53,7 @@ exports.genre_create_post = [
         .exec((err, foundGenre) => {
           if (err) { return next(err); }
           if (foundGenre) {
-            return res.redirect(foundGenre.url);
+            res.redirect(foundGenre.url);
           } else {
             genre.save((err) => {
               if (err) { return next(err); }

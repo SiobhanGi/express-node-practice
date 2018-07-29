@@ -26,7 +26,7 @@ exports.author_detail = (req, res, next) => {
   }, (err, result) => {
     if (err) { return next(err); }
     if (result.author == null) {
-      let err = new Error('Author not found');
+      const err = new Error('Author not found');
       err.status = 404;
       return next(err);
     }

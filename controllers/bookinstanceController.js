@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
+const async = require('async');
 const BookInstance = require('../models/bookInstance');
 const Book = require('../models/book');
 
@@ -18,7 +19,7 @@ exports.bookinstance_detail = (req, res, next) => {
     .exec((err, bookinstance) => {
       if (err) { return next(err); }
       if (bookinstance == null) {
-        let err = new Error('Book copy not found');
+        const err = new Error('Book copy not found');
         err.status = 404;
         return next(err);
       }
@@ -78,15 +79,15 @@ exports.bookinstance_create_post = [
   },
 ];
 
-exports.bookinstance_delete_get = (req, res) => {
+exports.bookinstance_delete_get = (req, res, next) => {
   async.parallel({
-    bookinstance: (callback) {
+    bookinstance: (callback) => {
       BookInstance.find({ book: req.params.id })
-      .exec(callback);
+        .exec(callback);
     },
   }, (err, results) => {
     if (err) { return next(err); }
-    if (bookInstance == null) {
+    if (results.bookInstance == null) {
       const err = new Error('Copy not found.');
       err.status = 404;
       return next(err);

@@ -140,7 +140,7 @@ exports.book_create_post = [
   },
 ];
 
-exports.book_delete_get = (req, res) => {
+exports.book_delete_get = (req, res, next) => {
   async.parallel({
     book: (callback) => {
       Book.findById(req.params.id)
@@ -150,14 +150,14 @@ exports.book_delete_get = (req, res) => {
     },
     bookinstance: (callback) => {
       BookInstance.find({
-        book: req.params.id
+        book: req.params.id,
       })
-      .exec(callback);
+        .exec(callback);
     },
   }, (err, results) => {
     if (err) { return next(err); }
     if (results.book == null) {
-      return res.redirect('/catalog/books')
+      return res.redirect('/catalog/books');
     }
     return res.render('book_delete', {
       title: 'Delete Author',
@@ -167,7 +167,7 @@ exports.book_delete_get = (req, res) => {
   });
 };
 
-exports.book_delete_post = (req, res) => {
+exports.book_delete_post = (req, res, next) => {
   async.parallel({
     book: (callback) => {
       Book.findById(req.params.id)
@@ -177,12 +177,12 @@ exports.book_delete_post = (req, res) => {
     },
     bookinstance: (callback) => {
       BookInstance.find({
-        book: req.params.id
+        book: req.params.id,
       })
-      .exec(callback);
+        .exec(callback);
     },
   }, (err, results) => {
-    if (err) { return next(err) }
+    if (err) { return next(err); }
     if (results.bookinstance.length > 0) {
       res.render('book_delete', {
         title: 'Delete book',
@@ -192,7 +192,7 @@ exports.book_delete_post = (req, res) => {
     } else {
       Book.findByIdAndRemove(req.body.id, (err) => {
         if (err) { return next(err); }
-        return res.redirect('/catalog/books')
+        return res.redirect('/catalog/books');
       });
     }
   });
